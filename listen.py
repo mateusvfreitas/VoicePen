@@ -1,14 +1,24 @@
 import speech_recognition as sr
 mic = sr.Recognizer()
-save_keyword = "house"
+save_keyword = "over"
+write_keyword = "and out"
 
 to_print = []
 
 # check if 'save_keyword' is in user's speech
 def check_save_keyword(phrase):
     # keyword must be in phrase and be the last or second to last position
-    if((save_keyword in phrase) and (phrase.split()[-1] == save_keyword or phrase.split()[-2] == save_keyword)):
-        final_str = phrase.replace(save_keyword, "")
+    if(save_keyword in phrase):
+        if(phrase.split()[-1] == save_keyword):
+            final_str = phrase.replace(save_keyword, "")    
+            to_print.append(final_str)
+        elif(phrase.split()[-3] == save_keyword):
+            check_write_keyword(phrase)
+            
+# check if 'save_keyword' is in user's speech
+def check_write_keyword(phrase):
+    if((write_keyword in phrase) and (phrase.split()[-1] == write_keyword.split()[-1])):
+        final_str = phrase.replace(save_keyword, "").replace(write_keyword, "")
         to_print.append(final_str)
     
 for i in range(2): # TODO: change loop for an infinite loop
