@@ -1,5 +1,6 @@
 from .src import listen as l
-# from src import image as i
+from .src import image as i
 
 def run():
-    l.start()
+    text = l.start()
+    i.set_image(text)

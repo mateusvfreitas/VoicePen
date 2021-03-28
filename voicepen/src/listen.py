@@ -1,5 +1,4 @@
 import speech_recognition as sr
-import text_to_image as tti
 
 mic = sr.Recognizer()
 save_keyword = "over"
@@ -24,7 +23,7 @@ def check_write_keyword(phrase):
         to_print.append(final_str)
     
 def start():
-    for i in range(2): # TODO: change loop for an infinite loop
+    for i in range(1): # TODO: change loop for an infinite loop
         with sr.Microphone() as source:
             mic.adjust_for_ambient_noise(source)
             print("Say something: ")
@@ -38,7 +37,8 @@ def start():
             print("Oops, sorry... Didn't catch that :(")
 
     # create a txt file with phrases listened (delete previous txt and generate new one)
-    text_file = open("text_file.txt", "w")
-    for item in to_print:
-        text_file.write(item)
-        text_file.write("\n")
+    # text_file = open("text_file.txt", "w")
+    # for item in to_print:
+    #     text_file.write(item)
+    #     text_file.write("\n")
+    return to_print
