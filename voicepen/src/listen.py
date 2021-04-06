@@ -5,6 +5,7 @@ save_keyword = "over"
 write_keyword = "and out"
 
 to_print = []
+listening = True
 
 # check if 'save_keyword' is in user's speech
 def check_save_keyword(phrase):
@@ -21,9 +22,11 @@ def check_write_keyword(phrase):
     if((write_keyword in phrase) and (phrase.split()[-1] == write_keyword.split()[-1])):
         final_str = phrase.replace(" " + save_keyword, "").replace(" " + write_keyword, "")
         to_print.append(final_str)
+        global listening
+        listening = False
     
 def start():
-    for i in range(1): # TODO: change loop for an infinite loop
+    while(listening):
         with sr.Microphone() as source:
             mic.adjust_for_ambient_noise(source)
             print("Say something: ")
@@ -36,9 +39,4 @@ def start():
         except sr.UnknownValueError:
             print("Oops, sorry... Didn't catch that :(")
 
-    # create a txt file with phrases listened (delete previous txt and generate new one)
-    # text_file = open("text_file.txt", "w")
-    # for item in to_print:
-    #     text_file.write(item)
-    #     text_file.write("\n")
     return to_print
