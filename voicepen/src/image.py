@@ -8,13 +8,12 @@ image = Image.new("RGB", (1748, 2480), color = "white")
 color = "rgb(0, 0, 0)" # black color
 text_start_height = 150
 text_start_width = 150
-# text = ["I went to the market and bought some apples and some milk", "I need to call the doctor's office, can you do it for me?"] # local tests only
-text = ["I went to the supermarket"]
+
 # initialise the drawing context with the image object as background
 draw = ImageDraw.Draw(image)
 
 # font type and size
-font = ImageFont.truetype('/home/mateus/Downloads/forced_square/FORCED SQUARE.ttf', size=70)
+font = ImageFont.truetype('voicepen/fonts/forced_square/FORCED SQUARE.ttf', size=70)
 ''' ---- GLOBALS ---- ''' 
 
 def draw_multiple_lines_text(image, text, text_start_height):
@@ -34,7 +33,4 @@ def set_image(text):
         next_line = draw_multiple_lines_text(image, item, lh)
         lh = next_line + 150
     # generates .png file on apropriate folder
-    image.save("images/text.png")
-
-# TODO: use line below if testing file alone
-set_image(text)
+    image.save("voicepen/images/text.png")

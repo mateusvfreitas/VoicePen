@@ -1,6 +1,7 @@
-from .src import listen as l
+from .src import mic as m
 from .src import image as i
+# from .src import lines as l
 
 def run():
-    text = l.start()
+    text = m.start()
     i.set_image(text)
