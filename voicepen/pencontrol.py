@@ -1,8 +1,10 @@
+# coding=utf-8
+
 '''
-tamanho dos braços
-braço outer arm, antebraço inner arm = 8 cm cada
+tamanho dos bracos
+braco outer arm, antebraco inner arm = 8 cm cada
 caneta inicializando em (-8, 8)
-angulo entre braço e ombro = -90
+angulo entre braco e ombro = -90
 angulo ante antebraco e braco - 90
 servo da caneta - up = 90; down = 45
 
@@ -95,7 +97,7 @@ calibrate                   -       bg.get_pulse_widths, bg.set_pulse_widths, re
 
 '''
 
-# coding=utf-8
+
 
 from time import sleep
 import readchar
@@ -227,8 +229,6 @@ class BrachioGraph:
         # Set the x and y position state, so it knows its current x/y position.
         self.current_x = -self.INNER_ARM
         self.current_y = self.OUTER_ARM
-
-        self.reset_report()
 
         self.previous_pw_1 = self.previous_pw_2 = 0
         self.active_hysteresis_correction_1 = self.active_hysteresis_correction_2 = 0
@@ -410,116 +410,6 @@ class BrachioGraph:
 
         return rotate, x_mid_point, y_mid_point, box_x_mid_point, box_y_mid_point, divider
 
-
-    # ----------------- test pattern methods -----------------
-
-    def test_pattern(self, bounds=None, wait=0, interpolate=10, repeat=1):
-
-        wait = wait or self.wait
-        bounds = bounds or self.bounds
-
-        if not bounds:
-            return "Plotting a test pattern is only possible when BrachioGraph.bounds is set."
-
-        for r in tqdm.tqdm(tqdm.trange(repeat, desc='Iteration'), leave=False):
-
-            for y in range(bounds[1], bounds[3], 2):
-
-                self.xy(bounds[0],   y,     wait, interpolate)
-                self.draw(bounds[2], y,     wait, interpolate)
-                self.xy(bounds[2],   y + 1, wait, interpolate)
-                self.draw(bounds[0], y + 1, wait, interpolate)
-
-        self.park()
-
-
-    def vertical_lines(self, bounds=None, lines=4, wait=0, interpolate=10, repeat=1, reverse=False, both=False):
-
-        wait = wait or self.wait
-        bounds = bounds or self.bounds
-
-        if not bounds:
-            return "Plotting a test pattern is only possible when BrachioGraph.bounds is set."
-
-        if not reverse:
-            top_y =    self.bounds[1]
-            bottom_y = self.bounds[3]
-        else:
-            bottom_y = self.bounds[1]
-            top_y =    self.bounds[3]
-
-        step = (self.bounds[2] - self.bounds[0]) /  lines
-        x = self.bounds[0]
-        while x <= self.bounds[2]:
-            self.draw_line((x, top_y), (x, bottom_y), interpolate=interpolate, both=both)
-            x = x + step
-
-        self.park()
-
-
-    def horizontal_lines(self, bounds=None, lines=4, wait=0, interpolate=10, repeat=1, reverse=False, both=False):
-
-        wait = wait or self.wait
-        bounds = bounds or self.bounds
-
-        if not bounds:
-            return "Plotting a test pattern is only possible when BrachioGraph.bounds is set."
-
-        if not reverse:
-            min_x = self.bounds[0]
-            max_x = self.bounds[2]
-        else:
-            max_x = self.bounds[0]
-            min_x = self.bounds[2]
-
-        step = (self.bounds[3] - self.bounds[1]) / lines
-        y = self.bounds[1]
-        while y <= self.bounds[3]:
-            self.draw_line((min_x, y), (max_x, y), interpolate=interpolate, both=both)
-            y = y + step
-
-        self.park()
-
-
-    def grid_lines(self, bounds=None, lines=4, wait=0, interpolate=10, repeat=1, reverse=False, both=False):
-
-        self.vertical_lines(
-            bounds=bounds, lines=lines, wait=wait, interpolate=interpolate, repeat=repeat, reverse=reverse, both=both
-            )
-        self.horizontal_lines(
-            bounds=bounds, lines=lines, wait=wait, interpolate=interpolate, repeat=repeat, reverse=reverse, both=both
-            )
-
-
-    def box(self, bounds=None, wait=0, interpolate=10, repeat=1, reverse=False):
-
-        wait = wait or self.wait
-        bounds = bounds or self.bounds
-
-        if not bounds:
-            return "Box drawing is only possible when BrachioGraph.bounds is set."
-
-        self.xy(bounds[0], bounds[1], wait, interpolate)
-
-        for r in tqdm.tqdm(tqdm.trange(repeat), desc='Iteration', leave=False):
-
-            if not reverse:
-
-                self.draw(bounds[2], bounds[1], wait, interpolate)
-                self.draw(bounds[2], bounds[3], wait, interpolate)
-                self.draw(bounds[0], bounds[3], wait, interpolate)
-                self.draw(bounds[0], bounds[1], wait, interpolate)
-
-            else:
-
-                self.draw(bounds[0], bounds[3], wait, interpolate)
-                self.draw(bounds[2], bounds[3], wait, interpolate)
-                self.draw(bounds[2], bounds[1], wait, interpolate)
-                self.draw(bounds[0], bounds[1], wait, interpolate)
-
-        self.park()
-
-
     # ----------------- pen-moving methods -----------------
 
     def xy(self, x=0, y=0, wait=0, interpolate=10, draw=False):
@@ -660,32 +550,6 @@ class BrachioGraph:
         return (actual_pulse_width_1, actual_pulse_width_2)
 
 
-    def park(self):
-
-        # parks the plotter
-
-        if self.virtual_mode:
-            print("Parking")
-
-        self.pen.up()
-        self.xy(-self.INNER_ARM, self.OUTER_ARM)
-        sleep(1)
-        # self.quiet()
-
-
-    def quiet(self, servos=[14, 15, 18]):
-
-        # stop sending pulses to the servos
-
-        if self.virtual_mode:
-            print("Going quiet")
-
-        else:
-
-            for servo in servos:
-                self.rpi.set_servo_pulsewidth(servo, 0)
-
-
     # ----------------- trigonometric methods -----------------
 
     # Every x/y position of the plotter corresponds to a pair of angles of the arms. These methods
@@ -717,222 +581,6 @@ class BrachioGraph:
 
         return (math.degrees(shoulder_motor_angle), math.degrees(elbow_motor_angle))
 
-
-    def angles_to_xy(self, shoulder_motor_angle, elbow_motor_angle):
-
-        # convert motor angles into x/y co-ordinates
-
-        elbow_motor_angle = math.radians(elbow_motor_angle)
-        shoulder_motor_angle = math.radians(shoulder_motor_angle)
-
-        hypotenuse = math.sqrt(
-            (self.INNER_ARM ** 2 + self.OUTER_ARM ** 2 - 2 * self.INNER_ARM * self.OUTER_ARM * math.cos(
-                math.pi - elbow_motor_angle)
-            )
-        )
-        base_angle = math.acos(
-            (hypotenuse ** 2 + self.INNER_ARM ** 2 - self.OUTER_ARM ** 2) / (2 * hypotenuse * self.INNER_ARM)
-        )
-        inner_angle = base_angle + shoulder_motor_angle
-
-        x = math.sin(inner_angle) * hypotenuse
-        y = math.cos(inner_angle) * hypotenuse
-
-        return(x, y)
-
-
-    # ----------------- calibration -----------------
-
-    def calibrate(self, servo=1):
-
-        pin = {1: 14, 2: 15}[servo]
-
-        servo_centre = {1: self.servo_1_centre, 2: self.servo_2_centre}.get(servo)
-        servo_angle_pws = []
-        texts = {
-            "arm-name": {1: "inner", 2: "outer"},
-            "nominal-centre": {1: 0, 2: 90},
-            "mount-arm": {
-                1: "(straight ahead)",
-                2: "(i.e. to the right) to the inner arm)"
-            },
-        "safe-guess": {1: -60, 2: 90}
-        }
-
-        pw = servo_centre
-
-        print(f"Calibrating servo {servo}, for the {texts['arm-name'][servo]} arm.")
-        print(f"See https://brachiograph.art/how-to/calibrate.html")
-        print()
-        self.rpi.set_servo_pulsewidth(pin, pw)
-        print(f"The servo is now at {pw}µS, in the centre of its range of movement.")
-        print("Attach the protractor to the base, with its centre at the axis of the servo.")
-
-        print(f"Mount the arm at a position as close as possible to {texts['nominal-centre'][servo]}˚ {texts['mount-arm'][servo]}.")
-
-        print("Now drive the arm to a known angle, as marked on the protractor.")
-        print("When the arm reaches the angle, press 1 and record the angle. Do this for as many angles as possible.")
-        print()
-        print("When you have done all the angles, press 2.")
-        print("Press 0 to exit at any time.")
-
-        while True:
-            key = readchar.readchar()
-
-            if key == "0":
-                return
-            elif key == "1":
-                angle = float(input("Enter the angle: "))
-                servo_angle_pws.append([angle, pw])
-            elif key == "2":
-                break
-            elif key=="a":
-                pw = pw - 10
-            elif key=="s":
-                pw = pw + 10
-            elif key=="A":
-                pw = pw - 1
-            elif key=="S":
-                pw = pw + 1
-            else:
-                continue
-
-            print(pw)
-
-            self.rpi.set_servo_pulsewidth(pin, pw)
-
-        print(f"------------------------")
-        print(f"Recorded angles servo {servo}")
-        print(f"------------------------")
-        print(f"  angle  |  pulse-width ")
-        print(f"---------+--------------")
-
-        servo_angle_pws.sort()
-        for [angle, pw] in servo_angle_pws:
-            print(f" {angle:>6.1f}  |  {pw:>4.0f}")
-
-        servo_array = numpy.array(servo_angle_pws)
-
-        pw = int(numpy.poly1d(
-            numpy.polyfit(
-                servo_array[:,0],
-                servo_array[:,1],
-                3
-            )
-        )(0))
-
-        self.rpi.set_servo_pulsewidth(pin, pw)
-        print()
-        print(f"The servo is now at {int(pw)}µS, which should correspond to {texts['nominal-centre'][servo]}˚.")
-        print("If necessary, remount the arm at the centre of its optimal sweep for your drawing area.")
-        print()
-        print(f"Alternatively as a rule of thumb, if the arms are of equal length, use the position closest to {texts['safe-guess'][servo]}˚.")
-
-        print("Carefully count how many spline positions you had to move the arm by to get it there.")
-        print("Multiply that by the number of degrees for each spline to get the angle by which you moved it.")
-        offset = float(input("Enter the angle by which you moved the arm (anti-clockwise is negative): "))
-
-        print(f"---------------------------")
-        print(f"Calculated angles {texts['arm-name'][servo]} arm")
-        print(f"---------------------------")
-        print(f"   angle  |  pulse-width   ")
-        print(f"----------+----------------")
-
-        servo_angle_including_offset_pws = []
-
-        for [angle, pw] in servo_angle_pws:
-            angle_including_offset = round(angle + offset, 1)
-            servo_angle_including_offset_pws.append([angle_including_offset, pw])
-            print(f"  {angle:>6.1f}  |  {pw:>4.0f}")
-
-        print()
-        print("Use this list of angles and pulse-widths in your BrachioGraph definition:")
-        print()
-        print(f"servo_{servo}_angle_pws={servo_angle_including_offset_pws}")
-
-
-    # ----------------- manual driving methods -----------------
-
-    def drive(self):
-
-        # adjust the pulse-widths using the keyboard
-
-        pw_1, pw_2 = self.get_pulse_widths()
-
-        self.set_pulse_widths(pw_1, pw_2)
-
-        while True:
-            key = readchar.readchar()
-
-            if key == "0":
-                return
-            elif key=="a":
-                pw_1 = pw_1 - 10
-            elif key=="s":
-                pw_1 = pw_1 + 10
-            elif key=="A":
-                pw_1 = pw_1 - 1
-            elif key=="S":
-                pw_1 = pw_1 + 1
-            elif key=="k":
-                pw_2 = pw_2 - 10
-            elif key=="l":
-                pw_2 = pw_2 + 10
-            elif key=="K":
-                pw_2 = pw_2 - 1
-            elif key=="L":
-                pw_2 = pw_2 + 1
-
-            print(pw_1, pw_2)
-
-            self.set_pulse_widths(pw_1, pw_2)
-
-
-    def drive_xy(self):
-
-        # move the pen up/down and left/right using the keyboard
-
-        while True:
-            key = readchar.readchar()
-
-            if key == "0":
-                return
-            elif key=="a":
-                self.current_x = self.current_x - 1
-            elif key=="s":
-                self.current_x = self.current_x + 1
-            elif key=="A":
-                self.current_x = self.current_x - .1
-            elif key=="S":
-                self.current_x = self.current_x + .1
-            elif key=="k":
-                self.current_y = self.current_y - 1
-            elif key=="l":
-                self.current_y = self.current_y + 1
-            elif key=="K":
-                self.current_y = self.current_y - .1
-            elif key=="L":
-                self.current_y = self.current_y + .1
-
-            print(self.current_x, self.current_y)
-
-            self.xy(self.current_x, self.current_y)
-
-    @property
-    def bl(self):
-        return (self.bounds[0], self.bounds[1])
-
-    @property
-    def tl(self):
-        return (self.bounds[0], self.bounds[3])
-
-    @property
-    def tr(self):
-        return (self.bounds[2], self.bounds[3])
-
-    @property
-    def br(self):
-        return (self.bounds[2], self.bounds[1])
 
 class Pen:
 
