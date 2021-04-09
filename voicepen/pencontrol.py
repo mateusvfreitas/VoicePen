@@ -100,7 +100,6 @@ calibrate                   -       bg.get_pulse_widths, bg.set_pulse_widths, re
 
 
 from time import sleep
-import readchar
 import math
 import numpy
 import json
@@ -119,38 +118,32 @@ class BrachioGraph:
 
     def __init__(
         self,
-        inner_arm=8,                # the lengths of the arms
-        outer_arm=8,
-        servo_1_centre=1500,        # shoulder motor centre pulse-width
-        servo_2_centre=1500,        # elbow motor centre pulse-width
-        servo_1_angle_pws=[],       # pulse-widths for various angles
-        servo_2_angle_pws=[],
-        servo_1_degree_ms=-10,      # milliseconds pulse-width per degree
-        servo_2_degree_ms=10,       # reversed for the mounting of the elbow servo
-        arm_1_centre=-60,
-        arm_2_centre=90,
-        hysteresis_correction_1=0,  # hardware error compensation
-        hysteresis_correction_2=0,
-        bounds=[-8, 4, 6, 13],      # the maximum rectangular drawing area
-        wait=None,
-        virtual_mode = False,
-        pw_up=1500,                 # pulse-widths for pen up/down
-        pw_down=1100,
+        inner_arm=8,                # Tamanho do braço (cm)
+        outer_arm=8,                # Tamanho do antebraço (cm)
+        servo_1_centre=1500,        # Angulo inicial do Ombro
+        servo_2_centre=1500,        # Angulo inicial do Antebraço
+        servo_1_degree_ms=-10,      # PWM relativo a 1 grau  # tweked
+        servo_2_degree_ms=10,       # PWM relativo a 1 grau  # tweked
+        arm_1_centre=-60,           # ???
+        arm_2_centre=90,            # ???
+        hysteresis_correction_1=0,  # Angulo de compensação para a Histerese  # tweked
+        hysteresis_correction_2=0,  # Angulo de compensação para a Histerese  # tweked
+        bounds=[-8, 4, 6, 13],      # Area máxima de desenho permitida (Retangulo)
+        wait=None,                  # Fator de tempo de espera entre movimentos para melhorar precisão
+        virtual_mode = False,       # Para debugar sem hardware
+        pw_up=1500,                 # Angulo OFF do motor on/off
+        pw_down=1100,               # Angulo ON do motor on/off
     ):
 
-        # set the pantograph geometry
+        # Salvando parametros default ou iniciados para a classe
         self.INNER_ARM = inner_arm
         self.OUTER_ARM = outer_arm
 
-        # acho que tem que tirar isso
+        ################# TIRAR
         self.virtual_mode = virtual_mode or force_virtual_mode
+        #################
 
-        # the box bounds describe a rectangle that we can safely draw in
         self.bounds = bounds
-
-        # if pulse-widths to angles are supplied for each servo, we will feed them to
-        # numpy.polyfit(), to produce a function for each one. Otherwise, we will use a simple
-        # approximation based on a centre of travel of 1500µS and 10µS per degree
 
         self.servo_1_centre = servo_1_centre
         self.servo_1_degree_ms = servo_1_degree_ms
@@ -162,36 +155,16 @@ class BrachioGraph:
         self.arm_2_centre = arm_2_centre
         self.hysteresis_correction_2 = hysteresis_correction_2
 
-        if servo_1_angle_pws:
-            servo_1_array = numpy.array(servo_1_angle_pws)
-            self.angles_to_pw_1 = numpy.poly1d(
-                numpy.polyfit(
-                    servo_1_array[:,0],
-                    servo_1_array[:,1],
-                    3
-                )
-            )
 
-        else:
-            self.angles_to_pw_1 = self.naive_angles_to_pulse_widths_1
-
-        if servo_2_angle_pws:
-            servo_2_array = numpy.array(servo_2_angle_pws)
-            self.angles_to_pw_2 = numpy.poly1d(
-                numpy.polyfit(
-                    servo_2_array[:,0],
-                    servo_2_array[:,1],
-                    3
-                )
-            )
-
-        else:
-            self.angles_to_pw_2 = self.naive_angles_to_pulse_widths_2
+        # Salva a função a ser chamada para o cálculo de Angulo para PWM
+        self.angles_to_pw_1 = self.naive_angles_to_pulse_widths_1
+        self.angles_to_pw_2 = self.naive_angles_to_pulse_widths_2
 
 
         # create the pen object, and make sure the pen is up
         self.pen = Pen(bg=self, pw_up=pw_up, pw_down=pw_down, virtual_mode=self.virtual_mode)
 
+        ################## TIRAR
         if self.virtual_mode:
 
             print("Initialising virtual BrachioGraph")
@@ -207,45 +180,44 @@ class BrachioGraph:
             print("    Pulse-width 2", self.virtual_pw_2)
 
         else:
-
-            # instantiate this Raspberry Pi as a pigpio.pi() instance
+        ##################
+            # Cria instancia do Raspberry Pi
             self.rpi = pigpio.pi()
 
-            # the pulse frequency should be no higher than 100Hz - higher values could (supposedly) damage the servos
+            # Limitando PWM dos motores para não ser maior que 100Hz para não queimar os servos
             self.rpi.set_PWM_frequency(14, 50)
             self.rpi.set_PWM_frequency(15, 50)
 
-            # Initialise the pantograph with the motors in the centre of their travel
+            # Leva os servos para seu centro
             self.rpi.set_servo_pulsewidth(14, self.angles_to_pw_1(-90))
             sleep(0.3)
             self.rpi.set_servo_pulsewidth(15, self.angles_to_pw_2(90))
             sleep(0.3)
 
-            # by default we use a wait factor of 0.1 for accuracy
+            # Fator de tempo de espera entre movimentos para melhorar precisão, 0.1 como default
             self.wait = wait or .1
 
-        # Now the plotter is in a safe physical state.
 
-        # Set the x and y position state, so it knows its current x/y position.
+        # Setando a posição atual da caneta (já que mandamos os motores para o centro)
         self.current_x = -self.INNER_ARM
         self.current_y = self.OUTER_ARM
 
-        self.reset_report()
+        ############### TIRAR (???)  reset_report
+        self.angle_1 = self.angle_2 = None
 
+        # Create sets for recording movement of the plotter.
+        self.angles_used_1 = set()
+        self.angles_used_2 = set()
+        self.pulse_widths_used_1 = set()
+        self.pulse_widths_used_2 = set()
+        ############### TIRAR
+
+
+        ############################## usado apenas na função set angles (?? funcionamento ??)
         self.previous_pw_1 = self.previous_pw_2 = 0
         self.active_hysteresis_correction_1 = self.active_hysteresis_correction_2 = 0
+        ##############################
 
-    # methods in this class:
-    # drawing
-    # line-processing
-    # test patterns
-    # pen-moving methods
-    # angles-to-pulse-widths
-    # hardware-related
-    # trigonometric methods
-    # calibration
-    # manual driving methods
-    # reporting methods
 
     # ----------------- drawing methods -----------------
 
@@ -274,19 +246,24 @@ class BrachioGraph:
 
         lines = self.rotate_and_scale_lines(lines=lines, bounds=bounds, flip=True)
 
+        # Começa o processo de escrita, linha por linha e mostra barra de progresso com tdqm
         for line in tqdm.tqdm(lines, desc="Lines", leave=False):
             x, y = line[0]
 
-            # only if we are not within 1mm of the start of the line, lift pen and go there
+            # Se não estamos dentro de 1mm para início da escrita da linha, levantamos a caneta e vamos para ela
+            #2 Vai até o primeiro ponto da linha a escrever
             if (round(self.current_x, 1), round(self.current_y, 1)) != (round(x, 1), round(y, 1)):
                 self.xy(x, y, wait=wait, interpolate=interpolate)
 
+            # For feito apenas para o tdqm mostrar a barrinha de progresso, poderia não ter
+            # Pega as cordenadas do ponto final da linha e chama a função draw
             for point in tqdm.tqdm(line[1:], desc="Segments", leave=False):
                 x, y = point
                 self.draw(x, y, wait=wait, interpolate=interpolate)
 
         self.park()
 
+    # Desenha 1 linha apenas passando o ponto inicial e final
     def draw_line(self, start=(0, 0), end=(0, 0), wait=0, interpolate=10, both=False):
 
         wait = wait or self.wait
@@ -313,6 +290,8 @@ class BrachioGraph:
 
     # ----------------- line-processing methods -----------------
 
+    # Chama analyse_lines para verificar e pegar parametros para caber a imagem certo na area de impressao
+    # Usa esses parametros para alterar a base de linhas atuais
     def rotate_and_scale_lines(self, lines=[], rotate=False, flip=False, bounds=None):
 
         rotate, x_mid_point, y_mid_point, box_x_mid_point, box_y_mid_point, divider = self.analyse_lines(
@@ -320,7 +299,6 @@ class BrachioGraph:
         )
 
         for line in lines:
-
             for point in line:
                 if rotate:
                     point[0], point[1] = point[1], point[0]
@@ -342,7 +320,8 @@ class BrachioGraph:
 
         return lines
 
-
+    # Faz os calculos loucos para saber se a imagem esta de acordo com a area de impressao, se nao, gera variaveis para caber a imagem na area
+    # TENTAMOS FAZER SEM E DELETAMOS ISSO AQUI DAI
     def analyse_lines(self, lines=[], rotate=False, bounds=None):
 
         # lines is a tuple itself containing a number of tuples, each of which contains a number of 2-tuples
@@ -414,65 +393,79 @@ class BrachioGraph:
 
     # ----------------- pen-moving methods -----------------
 
+    # Movimenta a caneta para a posição específica.
     def xy(self, x=0, y=0, wait=0, interpolate=10, draw=False):
-        # Moves the pen to the xy position; optionally draws
 
         wait = wait or self.wait
 
+        # Sobe ou desce caneta
         if draw:
             self.pen.down()
         else:
             self.pen.up()
 
+        # Converte posição x e y para angulos e Converte angulos para PWM
         (angle_1, angle_2) = self.xy_to_angles(x, y)
         (pulse_width_1, pulse_width_2) = self.angles_to_pulse_widths(angle_1, angle_2)
 
-        # if they are the same, we don't need to move anything
+        # Se o PWM da posição q estamos for o memo para onde devemos ir, não faz nada, return
         if (pulse_width_1, pulse_width_2) == self.get_pulse_widths():
 
-            # ensure the pantograph knows its x/y positions
+            # Garantir que a atual posição está atualizada
             self.current_x = x
             self.current_y = y
 
             return
 
-        # we assume the pantograph knows its x/y positions - if not, there could be
-        # a sudden movement later
+        ############# ?? we assume the pantograph knows its x/y positions - if not, there could be
+        ############# ?? a sudden movement later
 
+        # Calcula a distância da pos atual para o ponto necessário
         # calculate how many steps we need for this move, and the x/y length of each
         (x_length, y_length) = (x - self.current_x, y - self.current_y)
 
+        # Pega a distancia nominal entre os pontos (x1,y1) e (x2,y2)
         length = math.sqrt(x_length ** 2 + y_length **2)
 
+        # Se foi defenido um número para interpolate, então criaremos X pontos entre a pos atual e o ponto necessário
         no_of_steps = int(length * interpolate) or 1
 
+        ############### TIRAR ?????
         if no_of_steps < 100:
             disable_tqdm = True
         else:
             disable_tqdm = False
+        ###############
 
+        # Salva tamanho dos mini passos que a caneta vai dar, serve para atualizar posição atual
         (length_of_step_x, length_of_step_y) = (x_length/no_of_steps, y_length/no_of_steps)
 
+        # Para cada passo no numero de passos necessários, tirar?? -> TDQM safado de novo aqui
         for step in tqdm.tqdm(range(no_of_steps), desc='Interpolation', leave=False, disable=disable_tqdm):
-
+            
+            # Salva nova posição com base na posição atual e a distância dos mini passos
             self.current_x = self.current_x + length_of_step_x
             self.current_y = self.current_y + length_of_step_y
 
+            # calcula angulos da posição atual e salva eles
             angle_1, angle_2 = self.xy_to_angles(self.current_x, self.current_y)
 
+            # Movimenta o motor para os angulos passados (posição que deve ir)
             self.set_angles(angle_1, angle_2)
 
+            # incrementa o numero de passos dados e espera o tempo necessário para garantir precisão
             if step + 1 < no_of_steps:
                 sleep(length * wait/no_of_steps)
 
         sleep(length * wait/10)
 
-
+    # MOVIMENTA O SERVO
     def set_angles(self, angle_1=0, angle_2=0):
-        # moves the servo motor
 
+        # Converte angulos para PWM
         pw_1, pw_2 = self.angles_to_pulse_widths(angle_1, angle_2)
 
+        # Faz a adição da correção de histerese
         if pw_1 > self.previous_pw_1:
             self.active_hysteresis_correction_1 = self.hysteresis_correction_1
         elif pw_1 < self.previous_pw_1:
@@ -483,18 +476,23 @@ class BrachioGraph:
         elif pw_2 < self.previous_pw_2:
             self.active_hysteresis_correction_2 = - self.hysteresis_correction_2
 
+        # Atualiza PWM atual
         self.previous_pw_1 = pw_1
         self.previous_pw_2 = pw_2
 
+        ########### Substituir sa porra, PRA QUE??
         self.set_pulse_widths(pw_1 + self.active_hysteresis_correction_1, pw_2 + self.active_hysteresis_correction_2)
+        ########### Substituir sa porra pelo conteúdo dessa função aqui ^^
 
-        # We record the angles, so we that we know where the arms are for future reference.
+        # Atualizando angulos atuais e PWM atuais
         self.angle_1, self.angle_2 = angle_1, angle_2
 
+        ############# TIRAR
         self.angles_used_1.add(int(angle_1))
         self.angles_used_2.add(int(angle_2))
         self.pulse_widths_used_1.add(int(pw_1))
         self.pulse_widths_used_2.add(int(pw_2))
+        ############# FOUDA-SE pra que quero saber todos os caminhos e angulos usados?
 
 
     #  ----------------- angles-to-pulse-widths methods -----------------
@@ -630,12 +628,10 @@ class Pen:
             self.rpi.set_servo_pulsewidth(self.pin, self.pw_up)
             sleep(self.transition_time)
 
-    def reset_report(self):
 
-        self.angle_1 = self.angle_2 = None
 
-        # Create sets for recording movement of the plotter.
-        self.angles_used_1 = set()
-        self.angles_used_2 = set()
-        self.pulse_widths_used_1 = set()
-        self.pulse_widths_used_2 = set()
+
+
+
+brachio = BrachioGraph()
+brachio.plot_file(filename=r"C:\Users\Thiago\Desktop\Oficinas\VoicePen\text.json")
