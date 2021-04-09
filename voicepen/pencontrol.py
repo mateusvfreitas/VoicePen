@@ -230,6 +230,8 @@ class BrachioGraph:
         self.current_x = -self.INNER_ARM
         self.current_y = self.OUTER_ARM
 
+        self.reset_report()
+
         self.previous_pw_1 = self.previous_pw_2 = 0
         self.active_hysteresis_correction_1 = self.active_hysteresis_correction_2 = 0
 
@@ -627,3 +629,13 @@ class Pen:
         else:
             self.rpi.set_servo_pulsewidth(self.pin, self.pw_up)
             sleep(self.transition_time)
+
+    def reset_report(self):
+
+        self.angle_1 = self.angle_2 = None
+
+        # Create sets for recording movement of the plotter.
+        self.angles_used_1 = set()
+        self.angles_used_2 = set()
+        self.pulse_widths_used_1 = set()
+        self.pulse_widths_used_2 = set()
