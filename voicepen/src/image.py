@@ -13,7 +13,8 @@ text_start_width = 150
 draw = ImageDraw.Draw(image)
 
 # font type and size
-font = ImageFont.truetype('voicepen/fonts/forced_square/FORCED SQUARE.ttf', size=70)
+font = ImageFont.truetype('voicepen/fonts/forced_square/Fetamont.otf', size=70)
+# font = ImageFont.truetype('voicepen/fonts/forced_square/FORCED SQUARE.ttf', size=70)
 ''' ---- GLOBALS ---- ''' 
 
 def draw_multiple_lines_text(image, text, text_start_height):
