@@ -12,13 +12,10 @@ class VoicePen:
         forearm=8,              # Forearm size (cm)
         arm_center=-45,         # Central arm angle
         forearm_center=90,      # Central forearm angle
-        shoulder_pin=14,            
         shoulder_center=1700,   # Central shoulder motor pulse width
         shoulder_pulse=-10,     # PW value that equals 1 degree for shoulder motor
-        elbow_pin=15,
         elbow_center=1500,      # Central elbow motor pulse width
         elbow_pulse=10,         # PW value that equals 1 degree for elbow motor
-        pen_pin=18,
         pen_center=1500,        # central pen servo pulse width
         pen_up=1500,            # pulse width to raise pen
         pen_down=1100,          # pulse width to lower pen
@@ -33,15 +30,12 @@ class VoicePen:
         self.arm_center = arm_center
         self.forearm_center = forearm_center
 
-        self.shoulder_pin = shoulder_pin
         self.shoulder_center = shoulder_center
         self.shoulder_pulse = shoulder_pulse
 
-        self.elbow_pin = elbow_pin
         self.elbow_center = elbow_center
         self.elbow_pulse = elbow_pulse
 
-        self.pen_pin = pen_pin
         self.pen_center = pen_center
         self.pen_up = pen_up
         self.pen_down = pen_down
@@ -55,20 +49,20 @@ class VoicePen:
         self.rpi = pigpio.pi()
 
         # servomotors startup
-        self.rpi.set_PWM_frequency(self.shoulder_pin, 50)
-        self.rpi.set_PWM_frequency(self.elbow_pin, 50)
-        self.rpi.set_PWM_frequency(self.pen_pin, 50)
+        self.rpi.set_PWM_frequency(14, 50)
+        self.rpi.set_PWM_frequency(15, 50)
+        self.rpi.set_PWM_frequency(18, 50)
 
         # set starting pen position, raise, lower, raise pen
-        self.rpi.set_servo_pulsewidth(self.shoulder_pin, self.angle_to_pw(self.shoulder_pin, -90))
+        self.rpi.set_servo_pulsewidth(14, self.shoulder_angle_to_pw(-90))
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(self.elbow_pin, self.angle_to_pw(self.elbow_pin, 90))
+        self.rpi.set_servo_pulsewidth(15, self.elbow_angle_to_pw(90))
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(self.pen_pin, self.pen_up)
+        self.rpi.set_servo_pulsewidth(18, self.pen_up)
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(self.pen_pin, self.pen_down)
+        self.rpi.set_servo_pulsewidth(18, self.pen_down)
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(self.pen_pin, self.pen_up)
+        self.rpi.set_servo_pulsewidth(18, self.pen_up)
         sleep(0.5)
 
         # for self reference
@@ -79,12 +73,12 @@ class VoicePen:
 
     #
     def lower_pen(self):
-        self.rpi.set_servo_pulsewidth(self.pen_pin, self.pen_down)
+        self.rpi.set_servo_pulsewidth(18, self.pen_down)
         sleep(0.5)
 
     #
     def raise_pen(self):
-        self.rpi.set_servo_pulsewidth(self.pen_pin, self.pen_up)
+        self.rpi.set_servo_pulsewidth(18, self.pen_up)
         sleep(0.5)
     
     # loads json and draws based on lines
@@ -126,7 +120,7 @@ class VoicePen:
             self.raise_pen()
 
         (shoulder_angle, elbow_angle) = self.coordinate_to_angle(x, y)
-        (shoulder_pw, elbow_pw) = self.angle_to_pw(self.shoulder_pin, shoulder_angle), self.angle_to_pw(self.elbow_pin, elbow_angle)
+        (shoulder_pw, elbow_pw) = self.shoulder_angle_to_pw(shoulder_angle), self.elbow_angle_to_pw(elbow_angle)
 
         if (shoulder_pw, elbow_pw) == self.get_pulse_widths():
 
@@ -160,7 +154,7 @@ class VoicePen:
     # updates shoulder and elbow angles
     def set_angles(self, s_angle=0, e_angle=0):
 
-        s_pw, e_pw = self.angle_to_pw(self.shoulder_pin, s_angle), self.angle_to_pw(self.elbow_pin, e_angle)
+        s_pw, e_pw = self.shoulder_angle_to_pw(s_angle), self.elbow_angle_to_pw(e_angle)
         
         self.previous_shoulder_pw = s_pw
         self.previous_elbow_pw = e_pw
@@ -168,19 +162,25 @@ class VoicePen:
         self.shoulder_angle, self.elbow_angle = s_angle, e_angle
 
 
-    def angle_to_pw(self, pin, angle):
+    def shoulder_angle_to_pw(self, angle):
 
-        if pin == self.shoulder_pin:
             return (angle - self.arm_center) * self.shoulder_pulse + self.shoulder_center
 
-        if pin == self.elbow_pin:
+    def elbow_angle_to_pw(self, angle):
+
             return (angle - self.forearm_center) * self.elbow_pulse + self.elbow_pulse
+
+
+    def set_pulse_widths(self, s_pw, e_pw):
+
+        self.rpi.set_servo_pulsewidth(14, s_pw)
+        self.rpi.set_servo_pulsewidth(15, e_pw)
 
 
     def get_pulse_widths(self):
 
-        current_shoulder_pulse = self.rpi.get_servo_pulsewidth(self.shoulder_pin)
-        current_elbow_pulse = self.rpi.get_servo_pulsewidth(self.elbow_pin)
+        current_shoulder_pulse = self.rpi.get_servo_pulsewidth(14)
+        current_elbow_pulse = self.rpi.get_servo_pulsewidth(15)
         return (current_shoulder_pulse, current_elbow_pulse)
 
 
