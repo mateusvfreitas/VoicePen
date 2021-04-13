@@ -54,15 +54,15 @@ class VoicePen:
         self.rpi.set_PWM_frequency(18, 50)
 
         # set starting pen position, raise, lower, raise pen
-        self.rpi.set_servo_pulsewidth(14, self.shoulder_angle_to_pw(-90))
+        self.rpi.set_servo_pulsewidth(14, 1700)
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(15, self.elbow_angle_to_pw(90))
+        self.rpi.set_servo_pulsewidth(15, 1700)
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(18, self.pen_up)
+        self.rpi.set_servo_pulsewidth(18, 1500)
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(18, self.pen_down)
+        self.rpi.set_servo_pulsewidth(18, 1100)
         sleep(0.5)
-        self.rpi.set_servo_pulsewidth(18, self.pen_up)
+        self.rpi.set_servo_pulsewidth(18, 1500)
         sleep(0.5)
 
         # for self reference
@@ -73,12 +73,12 @@ class VoicePen:
 
     #
     def lower_pen(self):
-        self.rpi.set_servo_pulsewidth(18, self.pen_down)
+        self.rpi.set_servo_pulsewidth(18, 1100)
         sleep(0.5)
 
     #
     def raise_pen(self):
-        self.rpi.set_servo_pulsewidth(18, self.pen_up)
+        self.rpi.set_servo_pulsewidth(18, 1500)
         sleep(0.5)
     
     # loads json and draws based on lines
@@ -158,6 +158,8 @@ class VoicePen:
         
         self.previous_shoulder_pw = s_pw
         self.previous_elbow_pw = e_pw
+
+        self.set_pulse_widths(s_pw, e_pw)
         
         self.shoulder_angle, self.elbow_angle = s_angle, e_angle
 
@@ -199,17 +201,3 @@ class VoicePen:
         elbow_servo_angle = math.pi - beta
 
         return (math.degrees(shoulder_servo_angle), math.degrees(elbow_servo_angle))
-
-vp = VoicePen()
-sleep(0.5)
-vp.test_draw(start=(vp.bounds[0], vp.bounds[1]),end=(vp.bounds[0], vp.bounds[3]))
-sleep(0.1)
-vp.test_draw(start=(vp.bounds[0], vp.bounds[3]),end=(vp.bounds[2], vp.bounds[3]))
-sleep(0.1)
-vp.test_draw(start=(vp.bounds[2], vp.bounds[3]),end=(vp.bounds[2], vp.bounds[1]))
-sleep(0.1)
-vp.test_draw(start=(vp.bounds[2], vp.bounds[1]),end=(vp.bounds[0], vp.bounds[1]))
-sleep(0.1)
-vp.test_draw(start=(vp.bounds[0], vp.bounds[1]),end=(vp.bounds[2], vp.bounds[3]))
-sleep(0.1)
-vp.move_pen(x=vp.bounds[0],y=vp.bounds[1])
