@@ -10,7 +10,7 @@ class VoicePen:
         self,
         arm=8,                  # Arm size (cm)
         forearm=8,              # Forearm size (cm)
-        arm_center=-45,         # Central arm angle
+        arm_center=-70,         # Central arm angle
         forearm_center=90,      # Central forearm angle
         shoulder_center=1700,   # Central shoulder motor pulse width
         shoulder_pulse=-10,     # PW value that equals 1 degree for shoulder motor
@@ -19,7 +19,7 @@ class VoicePen:
         pen_center=1500,        # central pen servo pulse width
         pen_up=1500,            # pulse width to raise pen
         pen_down=1100,          # pulse width to lower pen
-        bounds=[-8, 6, 2, 12],  # Defining maximum plotting area = xi = -8, xf = 2, yi = 6, yf = 12
+        bounds=[-8, 4, 4, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 4, yf = 12
         wait=0.1,               # Wait factor to improve precision
         interpolate=100         # number of steps for each pen movement
     ):
@@ -179,7 +179,7 @@ class VoicePen:
 
             if step + 1 < steps:
 
-                sleep(self.wait/10)
+                sleep(self.wait/50)
 
         sleep(length * self.wait/10)
 
@@ -208,3 +208,5 @@ class VoicePen:
         self.move_pen(self.bounds[2],self.bounds[3],draw=True)
         self.move_pen(self.bounds[2],self.bounds[1],draw=True)
         self.move_pen(self.bounds[0],self.bounds[1],draw=True)
+
+        self.raise_pen()
