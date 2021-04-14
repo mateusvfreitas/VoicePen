@@ -19,7 +19,7 @@ class VoicePen:
         pen_center=1500,        # central pen servo pulse width
         pen_up=1500,            # pulse width to raise pen
         pen_down=1100,          # pulse width to lower pen
-        bounds=[-8, 4, 4, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 4, yf = 12
+        bounds=[-8, 6, 4, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 6, yf = 12
         wait=0.1,               # Wait factor to improve precision
         interpolate=100         # number of steps for each pen movement
     ):
@@ -40,10 +40,10 @@ class VoicePen:
         self.pen_down = pen_down
 
         self.bounds = bounds
-        
+
         self.wait = wait
         self.interpolate = interpolate
-        
+
         # create rpi instance
         self.rpi = pigpio.pi()
 
@@ -111,12 +111,12 @@ class VoicePen:
 
         s_pw = self.shoulder_angle_to_pw(s_angle)
         e_pw = self.elbow_angle_to_pw(e_angle)
-        
+
         self.previous_shoulder_pw = s_pw
         self.previous_elbow_pw = e_pw
 
         self.set_pulse_widths(s_pw, e_pw)
-        
+
         self.shoulder_angle, self.elbow_angle = s_angle, e_angle
 
     # uses the law of cosines to find shoulder and elbow angles
@@ -139,11 +139,11 @@ class VoicePen:
 
     # converts position into pulse width, gets length of step in each axle, draws if draw = True
     def move_pen(self, x=0, y=0, draw=False):
-        
+
         if draw:
 
             self.lower_pen()
-        
+
         else:
 
             self.raise_pen()
@@ -169,7 +169,7 @@ class VoicePen:
 
         # updates position and moves pen
         for step in range(steps):
-            
+
             self.current_x = self.current_x + step_x
             self.current_y = self.current_y + step_y
 
@@ -179,7 +179,7 @@ class VoicePen:
 
             if step + 1 < steps:
 
-                sleep(self.wait/50)
+                sleep(self.wait/25)
 
         sleep(length * self.wait/10)
 
@@ -198,7 +198,7 @@ class VoicePen:
             for point in line[1:]:
                 x, y = point
                 self.move_pen(x=x, y=y, draw=True)
-    
+
     # used for testing
     def test_draw(self):
 
