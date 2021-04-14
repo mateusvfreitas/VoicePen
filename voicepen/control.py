@@ -181,23 +181,26 @@ class VoicePen:
 
                 sleep(self.wait/25)
 
+        self.raise_pen()
         sleep(length * self.wait/10)
 
-    # loads json and draws based on lines
+    # loads json and draws based on lines, 
     def draw_from_file(self, filename=""):
 
         with open(filename, "r") as line_file:
             lines = json.load(line_file)
 
+        # move json origin from (0,0) to (bounds[0],bounds[3])
+
         for line in lines:
             x, y = line[0]
 
-            # move pen to start point
-            self.move_pen(x, y)
+            # move pen to start point -> json origin
+            self.move_pen(self.bounds[0]+x, self.bounds[3]-y)
 
             for point in line[1:]:
                 x, y = point
-                self.move_pen(x=x, y=y, draw=True)
+                self.move_pen(x=self.bounds[0]+x, y=self.bounds[3]-y, draw=True)
 
     # used for testing
     def test_draw(self):

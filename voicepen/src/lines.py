@@ -50,7 +50,7 @@ def get_pixels(img):
         for col in range(1,width):
             if(matrix[col, row] == 255):
                 if((matrix[col+1, row] == 255 and matrix[col-1, row] == 0) or (matrix[col+1,row] == 0 and matrix[col-1,row] == 255)):
-                    coord.append((col, row))
+                    coord.append((round(col/37,2), round(row/37,2)))
             else:
                 if(len(coord) > 0):
                     pixels.append(coord)
@@ -61,7 +61,7 @@ def get_pixels(img):
         for row in range(height-1):
             if(matrix[col, row] == 255):
                 if((matrix[col, row+1] == 255 and matrix[col, row-1] == 0) or (matrix[col,row+1] == 0 and matrix[col,row-1] == 255)):
-                    coord.append((col, row))
+                    coord.append((round(col/37,2), round(row/37,2)))
             else:
                 if(len(coord) > 0):
                     pixels.append(coord)
@@ -87,5 +87,5 @@ def makesvg(lines):
     out += '</svg>'
     return out
     
-image = "voicepen/images/text.png"
+image = "voicepen/images/text3.png"
 main(image)
