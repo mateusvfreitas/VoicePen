@@ -2,6 +2,7 @@
 
 from time import sleep
 import math
+import pandas as pd
 import json
 import pigpio
 
@@ -184,6 +185,42 @@ class VoicePen:
         self.raise_pen()
         sleep(length * self.wait/10)
 
+    def fit_box(self, lines=[]):
+        
+        if not lines.empty():
+            
+            # getting all points
+            points = []
+            for line in lines:
+                for point in line:
+                    points.append(point)
+
+            pts = pd.DataFrame(points, columns=['x', 'y'])
+
+            # get max and min values from .json
+            max_x, max_y = max(pts.iloc[:,0]), max(pts.iloc[:,1])
+            min_x, min_y = min(pts.iloc[:,0]), min(pts.iloc[:,1])
+
+            # see how much shoul we escale x and y to fit bounds, get the one that we need to resize the most
+            scale_x = (bounds[2] - bounds[0]) / (max_x - min_x)
+            scale_y = (bounds[3] - bounds[1]) / (max_y - min_y)
+            factor = min([scale_x, scale_y])
+
+            pts_scaled = pts * factor
+
+            # with points resized, see how much should we move them to match origin from bounds and image
+            min_x, min_y = min(pts_scaled.iloc[:,0]), min(pts_scaled.iloc[:,1])
+            move_x = bounds[0] - min_x
+            move_y = bounds[1] - min_y
+        
+            # applying those values into our lines, (apply resizing factor, then move it)
+            for line in lines:
+                for point in line:
+                    point[0] = round((point[0] * factor) + move_x, 4)
+                    point[1] = round((point[1] * factor) + move_y, 4)
+
+        return lines
+
     # loads json and draws based on lines, 
     def draw_from_file(self, filename=""):
 
@@ -191,6 +228,7 @@ class VoicePen:
             lines = json.load(line_file)
 
         # move json origin from (0,0) to (bounds[0],bounds[3])
+        lines = fit_box(lines)
 
         for line in lines:
             x, y = line[0]
