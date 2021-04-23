@@ -184,6 +184,7 @@ class VoicePen:
         self.raise_pen()
         sleep(length * self.wait/10)
 
+    # gets scaling factor to fit text into writable area
     def fit_box(self, lines=[]):
         
         if not lines.empty():
@@ -205,9 +206,9 @@ class VoicePen:
             max_x, max_y = max(x_values), max(y_values)
             min_x, min_y = min(x_values), min(y_values)
 
-            # see how much shoul we escale x and y to fit bounds, get the one that we need to resize the most
-            scale_x = (bounds[2] - bounds[0]) / (max_x - min_x)
-            scale_y = (bounds[3] - bounds[1]) / (max_y - min_y)
+            # scale factor for both axis to fit bounds, get the one that we need to resize the most
+            scale_x = (self.bounds[2] - self.bounds[0]) / (max_x - min_x)
+            scale_y = (self.bounds[3] - self.bounds[1]) / (max_y - min_y)
             factor = min([scale_x, scale_y])
 
             x_scaled = [elem * factor for elem in x_values]
@@ -232,18 +233,18 @@ class VoicePen:
         with open(filename, "r") as line_file:
             lines = json.load(line_file)
 
-        # move json origin from (0,0) to (bounds[0],bounds[3])
-        lines = fit_box(lines)
+        # move json origin
+        lines = self.fit_box(lines)
 
         for line in lines:
             x, y = line[0]
 
             # move pen to start point -> json origin
-            self.move_pen(self.bounds[0]+x, self.bounds[3]-y)
+            self.move_pen(x, y)
 
             for point in line[1:]:
                 x, y = point
-                self.move_pen(x=self.bounds[0]+x, y=self.bounds[3]-y, draw=True)
+                self.move_pen(x=x, y=y, draw=True)
 
     # used for testing
     def test_draw(self):
