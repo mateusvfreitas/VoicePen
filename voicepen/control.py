@@ -2,7 +2,6 @@
 
 from time import sleep
 import math
-import pandas as pd
 import json
 import pigpio
 
@@ -191,25 +190,31 @@ class VoicePen:
             
             # getting all points
             points = []
+            x_values = []
+            y_values = []
             for line in lines:
                 for point in line:
                     points.append(point)
-
-            pts = pd.DataFrame(points, columns=['x', 'y'])
+                    x_values.append(point[0])
+                    y_values.append(point[1])
+            
+            
+            #pts = pd.DataFrame(points, columns=['x', 'y'])
 
             # get max and min values from .json
-            max_x, max_y = max(pts.iloc[:,0]), max(pts.iloc[:,1])
-            min_x, min_y = min(pts.iloc[:,0]), min(pts.iloc[:,1])
+            max_x, max_y = max(x_values), max(y_values)
+            min_x, min_y = min(x_values), min(y_values)
 
             # see how much shoul we escale x and y to fit bounds, get the one that we need to resize the most
             scale_x = (bounds[2] - bounds[0]) / (max_x - min_x)
             scale_y = (bounds[3] - bounds[1]) / (max_y - min_y)
             factor = min([scale_x, scale_y])
 
-            pts_scaled = pts * factor
+            x_scaled = [elem * factor for elem in x_values]
+            y_scaled = [elem * factor for elem in y_values]
 
             # with points resized, see how much should we move them to match origin from bounds and image
-            min_x, min_y = min(pts_scaled.iloc[:,0]), min(pts_scaled.iloc[:,1])
+            min_x, min_y = min(x_scaled), min(y_scaled)
             move_x = bounds[0] - min_x
             move_y = bounds[1] - min_y
         
