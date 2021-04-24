@@ -9,12 +9,12 @@ def main(image):
     # contours = sortlines(get_contours(image))
     lines = get_contours(image)
     
-    f = open("voicepen/images/text.svg", 'w')
-    f.write(makesvg(lines))
-    f.close()
+    #f = open("voicepen/images/text.svg", 'w')
+    #f.write(makesvg(lines))
+    #f.close()
 
     lines_to_json_file(lines, "text.json")
-
+    #draw(lines)
     return lines
 
 def get_contours(image):
@@ -29,7 +29,7 @@ def find_edges(image):
     print("finding edges...")
     img = cv2.imread(image)
     gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    (thresh, b_w) = cv2.threshold(gray_image, 0, 255, cv2.THRESH_BINARY_INV)
+    (thresh, b_w) = cv2.threshold(gray_image, 130, 255, cv2.THRESH_BINARY_INV)
 
     borders = np.zeros(b_w.shape, np.uint8)
     contours = cv2.findContours(b_w, cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)[0][:]
@@ -50,7 +50,7 @@ def get_pixels(img):
         for col in range(1,width):
             if(matrix[col, row] == 255):
                 if((matrix[col+1, row] == 255 and matrix[col-1, row] == 0) or (matrix[col+1,row] == 0 and matrix[col-1,row] == 255)):
-                    coord.append(col, row)
+                    coord.append((col, row))
             else:
                 if(len(coord) > 0):
                     pixels.append(coord)
@@ -61,7 +61,7 @@ def get_pixels(img):
         for row in range(height-1):
             if(matrix[col, row] == 255):
                 if((matrix[col, row+1] == 255 and matrix[col, row-1] == 0) or (matrix[col,row+1] == 0 and matrix[col,row-1] == 255)):
-                    coord.append(col, row)
+                    coord.append((col, row))
             else:
                 if(len(coord) > 0):
                     pixels.append(coord)
@@ -86,6 +86,31 @@ def makesvg(lines):
         out += '<polyline points="'+l+'" stroke="black" stroke-width="1" fill="none" />\n'
     out += '</svg>'
     return out
+
+def draw(lines):
+    from tkinter import Tk, LEFT
+    from turtle import Canvas, RawTurtle, TurtleScreen
+
+    # set up the environment
+    root = Tk()
+    canvas = Canvas(root, width=800, height=800)
+    canvas.pack()
+
+    s = TurtleScreen(canvas)
+
+    t = RawTurtle(canvas)
+    t.speed(0)
+    t.width(1)
+
+    for line in lines:
+        x, y = line[0]
+        t.up()
+        t.goto(x*800/1024-400,-(y*800/1024-400))
+        for point in line:
+            t.down()
+            t.goto(point[0]*800/1024-400,-(point[1]*800/1024-400))
+
+    s.mainloop()
     
-image = "voicepen/images/text3.png"
-main(image)
+#image = "voicepen/images/text3.png"
+#main(image)
