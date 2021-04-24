@@ -195,6 +195,7 @@ class VoicePen:
             y_values = []
             for line in lines:
                 for point in line:
+                    point[0] = -point[0]    # Inverting image
                     points.append(point)
                     x_values.append(point[0])
                     y_values.append(point[1])
