@@ -187,7 +187,7 @@ class VoicePen:
     # gets scaling factor to fit text into writable area
     def fit_box(self, lines=[]):
         
-        if not lines.empty():
+        if lines:
             
             # getting all points
             points = []
@@ -217,8 +217,8 @@ class VoicePen:
 
             # with points resized, see how much should we move them to match origin from bounds and image
             min_x, min_y = min(x_scaled), min(y_scaled)
-            move_x = bounds[0] - min_x
-            move_y = bounds[1] - min_y
+            move_x = self.bounds[0] - min_x
+            move_y = self.bounds[1] - min_y
         
             # applying those values into our lines, (apply resizing factor, then move it)
             for line in lines:
