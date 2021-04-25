@@ -34,4 +34,4 @@ def set_image(text):
         next_line = draw_multiple_lines_text(image, item, lh)
         lh = next_line + 150
     # generates .png file on apropriate folder
-    image.save("voicepen/images/text.png")
+    image.save("voicepen/images/aushuahs.png")

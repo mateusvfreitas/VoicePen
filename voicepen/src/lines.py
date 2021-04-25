@@ -13,7 +13,7 @@ def main(image):
     #f.write(makesvg(lines))
     #f.close()
 
-    lines_to_json_file(lines, "text.json")
+    lines_to_json_file(lines, "aushuahs.json")
     #draw(lines)
     return lines
 
