@@ -5,7 +5,7 @@ from .src import lines as l
 def run():
 #    text = m.start()
     # for debugging: 
-    text = ["get apples", "to a pie"]
+    text = ["big", "less", "old"]
     i.set_image(text)
     path = "voicepen\\images\\text.png"
     l.main(path)
