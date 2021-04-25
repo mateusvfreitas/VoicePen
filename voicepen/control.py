@@ -207,6 +207,11 @@ class VoicePen:
             max_x, max_y = max(x_values), max(y_values)
             min_x, min_y = min(x_values), min(y_values)
 
+            # Check if needed to rotate, if y range of image higher than x range of image, then need to rotate to best fit to plotting area
+            rotate = False
+            if (max_y >= max_x and (bounds[3] - bounds[1]) >= (bounds[2] - bounds[0])):
+                rotate = True
+
             # scale factor for both axis to fit bounds, get the one that we need to resize the most
             scale_x = (self.bounds[2] - self.bounds[0]) / (max_x - min_x)
             scale_y = (self.bounds[3] - self.bounds[1]) / (max_y - min_y)
@@ -225,6 +230,11 @@ class VoicePen:
                 for point in line:
                     point[0] = round((point[0] * factor) + move_x, 4)
                     point[1] = round((point[1] * factor) + move_y, 4)
+                    
+                    if rotate:
+                        point[1] = point[1] + point[0]
+                        point[0] = point[1] - point[0]
+                        point[1] = point[1] - point[0]
 
         return lines
 
