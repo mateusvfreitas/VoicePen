@@ -209,7 +209,7 @@ class VoicePen:
 
             # Check if needed to rotate, if y range of image higher than x range of image, then need to rotate to best fit to plotting area
             rotate = False
-            if (max_y >= max_x and (bounds[3] - bounds[1]) >= (bounds[2] - bounds[0])):
+            if (max_x <= max_y and (self.bounds[2] - self.bounds[0]) >= (self.bounds[3] - self.bounds[1])):
                 rotate = True
 
             # scale factor for both axis to fit bounds, get the one that we need to resize the most
