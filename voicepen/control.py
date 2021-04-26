@@ -205,11 +205,11 @@ class VoicePen:
             max_x, max_y = max(x_values), max(y_values)
             min_x, min_y = min(x_values), min(y_values)
 
-            points = []
-            x_values = []
-            y_values = []
             # Check if needed to rotate, if y range of image higher than x range of image, then rotate to best fit to plotting area
             if ((max_x - min_x) <= (max_y - min_y) and (self.bounds[2] - self.bounds[0]) >= (self.bounds[3] - self.bounds[1])):
+                points = []
+                x_values = []
+                y_values = []
                 for line in lines:
                     for point in line:
                         point[0], point[1] = point[1], -point[0]    # switching x with y values, and de-flipping image
@@ -217,8 +217,8 @@ class VoicePen:
                         x_values.append(point[0])
                         y_values.append(point[1])
 
-            max_x, max_y = max(x_values), max(y_values)
-            min_x, min_y = min(x_values), min(y_values)
+                max_x, max_y = max(x_values), max(y_values)
+                min_x, min_y = min(x_values), min(y_values)
 
             # scale factor for both axis to fit bounds, get the one that we need to resize the most
             scale_x = (self.bounds[2] - self.bounds[0]) / (max_x - min_x)
