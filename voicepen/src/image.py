@@ -13,8 +13,8 @@ text_start_width = 150
 draw = ImageDraw.Draw(image)
 
 # font type and size
-#font = ImageFont.truetype('voicepen/fonts/forced_square/Fetamont.otf', size=70)
-font = ImageFont.truetype('voicepen/fonts/forced_square/FORCED SQUARE.ttf', size=70)
+font = ImageFont.truetype('voicepen/fonts/forced_square/thin.ttf', size=12)
+# font = ImageFont.truetype('voicepen/fonts/forced_square/FORCED SQUARE.ttf', size=12)
 ''' ---- GLOBALS ---- ''' 
 
 def draw_multiple_lines_text(image, text, text_start_height):
@@ -24,7 +24,7 @@ def draw_multiple_lines_text(image, text, text_start_height):
     for line in lines:
         line_width, line_height = font.getsize(line)
         draw.text(((image_width - line_width) / 2, y_text), 
-                  line.lower(), font=font, fill=color)
+                  line.upper(), font=font, fill=color)
         y_text += line_height
     return y_text
     
@@ -32,6 +32,6 @@ def set_image(text):
     lh = text_start_height
     for item in text:
         next_line = draw_multiple_lines_text(image, item, lh)
-        lh = next_line + 150
+        lh = next_line + 2
     # generates .png file on apropriate folder
-    image.save("voicepen/images/aushuahs.png")
+    image.save("voicepen/images/abcd.png")

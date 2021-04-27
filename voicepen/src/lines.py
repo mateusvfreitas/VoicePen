@@ -9,12 +9,12 @@ def main(image):
     # contours = sortlines(get_contours(image))
     lines = get_contours(image)
     
-    #f = open("voicepen/images/text.svg", 'w')
-    #f.write(makesvg(lines))
-    #f.close()
+    # f = open("voicepen/images/text.svg", 'w')
+    # f.write(makesvg(lines))
+    # f.close()
 
-    lines_to_json_file(lines, "aushuahs.json")
-    #draw(lines)
+    lines_to_json_file(lines, "abcd.json")
+    # draw(lines)
     return lines
 
 def get_contours(image):
@@ -112,5 +112,5 @@ def draw(lines):
 
     s.mainloop()
     
-#image = "voicepen/images/text3.png"
-#main(image)
+# image = "voicepen/images/pipa.png"
+# main(image)

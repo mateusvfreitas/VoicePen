@@ -5,7 +5,7 @@ from .src import lines as l
 def run():
 #    text = m.start()
     # for debugging: 
-    text = ["o"]
+    text = ["abcdefghi", "jklmnopqr", "stuvwyz"]
     i.set_image(text)
-    path = "voicepen/images/aushuahs.png"
+    path = "voicepen/images/abcd.png"
     l.main(path)
