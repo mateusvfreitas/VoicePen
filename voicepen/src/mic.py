@@ -30,12 +30,12 @@ def start():
         with sr.Microphone() as source:
             mic.adjust_for_ambient_noise(source)
             print("Say something: ")
-            audio = mic.listen(source, timeout=5, phrase_time_limit=5) # TODO: mess around to find best timeout and phrase_time_limit
+            audio = mic.listen(source, phrase_time_limit=5)
 
         try:
             phrase = mic.recognize_google(audio)
             check_save_keyword(phrase)
-            print("You said: {0}".format(phrase)) # TODO: remove print (only useful for testing)
+            print("You said: {0}".format(phrase))
         except sr.UnknownValueError:
             print("Oops, sorry... Didn't catch that :(")
 

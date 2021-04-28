@@ -6,15 +6,8 @@ import json
 
 
 def main(image):
-    # contours = sortlines(get_contours(image))
     lines = get_contours(image)
-    
-    # f = open("voicepen/images/text.svg", 'w')
-    # f.write(makesvg(lines))
-    # f.close()
-
-    lines_to_json_file(lines, "abcd.json")
-    # draw(lines)
+    lines_to_json_file(lines, "/home/pi/git/VoicePen/voicepen/text.json")
     return lines
 
 def get_contours(image):
@@ -72,45 +65,3 @@ def get_pixels(img):
 def lines_to_json_file(lines, filename):
     with open(filename, "w") as file_to_save:
         json.dump(lines, file_to_save, indent=4)
-
-
-''' BLOCK OF CODE TO TEST FUNCTIONS '''
-def makesvg(lines):
-    print("generating svg file...")
-    width = math.ceil(max([max([p[0]*0.5 for p in l]) for l in lines]))
-    height = math.ceil(max([max([p[1]*0.5 for p in l]) for l in lines]))
-    out = '<svg xmlns="http://www.w3.org/2000/svg" height="%spx" width="%spx" version="1.1">' % (height, width)
-
-    for l in lines:
-        l = ",".join([str(p[0]*0.5)+","+str(p[1]*0.5) for p in l])
-        out += '<polyline points="'+l+'" stroke="black" stroke-width="1" fill="none" />\n'
-    out += '</svg>'
-    return out
-
-def draw(lines):
-    from tkinter import Tk, LEFT
-    from turtle import Canvas, RawTurtle, TurtleScreen
-
-    # set up the environment
-    root = Tk()
-    canvas = Canvas(root, width=800, height=800)
-    canvas.pack()
-
-    s = TurtleScreen(canvas)
-
-    t = RawTurtle(canvas)
-    t.speed(0)
-    t.width(1)
-
-    for line in lines:
-        x, y = line[0]
-        t.up()
-        t.goto(x*800/1024-400,-(y*800/1024-400))
-        for point in line:
-            t.down()
-            t.goto(point[0]*800/1024-400,-(point[1]*800/1024-400))
-
-    s.mainloop()
-    
-# image = "voicepen/images/pipa.png"
-# main(image)

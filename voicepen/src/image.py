@@ -13,7 +13,7 @@ text_start_width = 150
 draw = ImageDraw.Draw(image)
 
 # font type and size
-font = ImageFont.truetype('voicepen/fonts/forced_square/thin.ttf', size=12)
+font = ImageFont.truetype('/home/pi/git/VoicePen/voicepen/fonts/forced_square/thin.ttf', size=12)
 ''' ---- GLOBALS ---- ''' 
 
 def draw_multiple_lines_text(image, text, text_start_height):
@@ -33,4 +33,7 @@ def set_image(text):
         next_line = draw_multiple_lines_text(image, item, lh)
         lh = next_line + 2
     # generates .png file on apropriate folder
-    image.save("voicepen/images/abcd.png")
+    path = "/home/pi/git/VoicePen/voicepen/images/text.png"
+    image.save(path)
+
+    return path
