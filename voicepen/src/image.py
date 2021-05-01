@@ -19,12 +19,12 @@ font = ImageFont.truetype('/home/pi/git/VoicePen/voicepen/fonts/forced_square/th
 def draw_multiple_lines_text(image, text, text_start_height):
     image_width, image_height = image.size
     y_text = text_start_height
-    lines = textwrap.wrap(text, width=40)
+    lines = textwrap.wrap(text, width=30)
     for line in lines:
         line_width, line_height = font.getsize(line)
         draw.text(((image_width - line_width) / 2, y_text), 
                   line.upper(), font=font, fill=color)
-        y_text += line_height
+        y_text += line_height + 2
     return y_text
     
 def set_image(text):
