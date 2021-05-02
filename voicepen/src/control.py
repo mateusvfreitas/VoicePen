@@ -19,9 +19,9 @@ class VoicePen:
         pen_center=1500,        # central pen servo pulse width
         pen_up=1500,            # pulse width to raise pen
         pen_down=1100,          # pulse width to lower pen
-        bounds=[-8, 6, 2, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 6, yf = 12
+        bounds=[-6, 6, 2, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 6, yf = 12
         wait=0.1,               # Wait factor to improve precision
-        interpolate=100         # number of steps for each pen movement
+        interpolate=50         # number of steps for each pen movement
     ):
 
         self.arm = arm
@@ -96,9 +96,9 @@ class VoicePen:
     def set_pulse_widths(self, s_pw, e_pw):
 
         self.rpi.set_servo_pulsewidth(14, s_pw)
-        # sleep(self.wait/50)
+        sleep(self.wait/25)
         self.rpi.set_servo_pulsewidth(15, e_pw)
-        # sleep(self.wait/50)
+        sleep(self.wait/25)
 
     #
     def get_pulse_widths(self):
