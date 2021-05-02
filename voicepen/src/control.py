@@ -223,8 +223,8 @@ class VoicePen:
                 min_x, min_y = min(x_values), min(y_values)
 
             # scale factor for both axis to fit bounds, get the one that we need to resize the most
-            scale_x = (self.bounds[2] - self.bounds[0]) / (max_x - min_x)
-            scale_y = (self.bounds[3] - self.bounds[1]) / (max_y - min_y)
+            scale_x = ((self.bounds[2] - 1) - (self.bounds[0] + 1)) / (max_x - min_x)
+            scale_y = ((self.bounds[3] - 0.5) - (self.bounds[1] + 0.5)) / (max_y - min_y)
             factor = min([scale_x, scale_y])
 
             x_scaled = [elem * factor for elem in x_values]
@@ -232,8 +232,8 @@ class VoicePen:
 
             # with points resized, see how much should we move them to match origin from bounds and image
             min_x, min_y = min(x_scaled), min(y_scaled)
-            move_x = self.bounds[0] - min_x
-            move_y = self.bounds[1] - min_y
+            move_x = (self.bounds[0] + 1) - min_x
+            move_y = (self.bounds[1] + 0.5) - min_y
         
             # applying those values into our lines, (apply resizing factor, then move it)
             for line in lines:
