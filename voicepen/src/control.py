@@ -12,16 +12,16 @@ class VoicePen:
         forearm=8,              # Forearm size (cm)
         arm_center=-70,         # Central arm angle
         forearm_center=90,      # Central forearm angle
-        shoulder_center=1650,   # Central shoulder motor pulse width
+        shoulder_center=1700,   # Central shoulder motor pulse width
         shoulder_pulse=-10,     # PW value that equals 1 degree for shoulder motor
         elbow_center=1500,      # Central elbow motor pulse width
         elbow_pulse=10,         # PW value that equals 1 degree for elbow motor
         pen_center=1500,        # central pen servo pulse width
         pen_up=1500,            # pulse width to raise pen
         pen_down=1100,          # pulse width to lower pen
-        bounds=[-8, 6, 4, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 6, yf = 12
+        bounds=[-6, 6, 2, 12],  # Defining maximum plotting area = xi = -8, xf = 4, yi = 6, yf = 12
         wait=0.1,               # Wait factor to improve precision
-        interpolate=50          # number of steps for each pen movement
+        interpolate=50         # number of steps for each pen movement
     ):
 
         self.arm = arm
@@ -96,9 +96,9 @@ class VoicePen:
     def set_pulse_widths(self, s_pw, e_pw):
 
         self.rpi.set_servo_pulsewidth(14, s_pw)
-        sleep(self.wait/50)
+        sleep(self.wait/25)
         self.rpi.set_servo_pulsewidth(15, e_pw)
-        sleep(self.wait/50)
+        sleep(self.wait/25)
 
     #
     def get_pulse_widths(self):
@@ -183,8 +183,8 @@ class VoicePen:
 
                 sleep(self.wait/25)
 
-        self.raise_pen()
         sleep(length * self.wait/10)
+        self.raise_pen()
 
     # gets scaling factor to fit text into writable area
     def fit_box(self, lines=[]):
